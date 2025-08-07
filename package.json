@@ -1,0 +1,32 @@
+{
+  "name": "arnabdey-art",
+  "version": "1.0.0",
+  "description": "Literary Photography - A curated blend of literary works and stunning photography by Arnab Dey.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "keywords": [
+    "Astro",
+    "blog",
+    "photography",
+    "print store"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/vercel": "^8.2.5",
+    "astro": "^5.12.8",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  }
+}

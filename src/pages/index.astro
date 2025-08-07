@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get featured blog posts and photography
+const blogPosts = await getCollection('blog');
+const photos = await getCollection('photography');
+
+const featuredPosts = blogPosts
+  .filter(post => post.data.featured)
+  .slice(0, 3)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const featuredPhotos = photos
+  .filter(photo => photo.data.featured)
+  .slice(0, 6);
+
+const recentPosts = blogPosts
+  .slice(0, 3)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout title="Literary Photography - Where Words Meet Images" description="A curated blend of literary works and stunning photography. Explore stories, poems, and visual narratives that capture the essence of human experience.">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Where Words Meet Images</h1>
+      <p>A curated blend of literary works and stunning photography</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/blog" class="btn btn-primary">Explore Stories</a>
+        <a href="/photography" class="btn btn-secondary">View Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Content Section -->
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Featured Content</h2>
+        <p>Discover our latest stories and visual narratives</p>
+      </div>
+
+      {featuredPosts.length > 0 && (
+        <div>
+          <h3 style="text-align: center; margin-bottom: 2rem;">Featured Stories</h3>
+          <div class="grid grid-3">
+            {featuredPosts.map((post) => (
+              <article class="post-card">
+                {post.data.heroImage && (
+                  <img src={post.data.heroImage} alt={post.data.title} class="post-card-image" />
+                )}
+                <div class="post-card-content">
+                  <h4 class="post-card-title">
+                    <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+                  </h4>
+                  <div class="post-card-meta">
+                    {post.data.pubDate.toLocaleDateString()} • {post.data.author}
+                  </div>
+                  <p class="post-card-excerpt">{post.data.description}</p>
+                  {post.data.tags.length > 0 && (
+                    <div class="post-card-tags">
+                      {post.data.tags.slice(0, 3).map((tag) => (
+                        <span class="tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {featuredPhotos.length > 0 && (
+        <div style="margin-top: 4rem;">
+          <h3 style="text-align: center; margin-bottom: 2rem;">Featured Photography</h3>
+          <div class="photo-grid">
+            {featuredPhotos.map((photo) => (
+              <div class="photo-item">
+                <a href={`/photography/${photo.slug}`}>
+                  <img src={photo.data.image} alt={photo.data.altText} />
+                  <div class="photo-overlay">
+                    <h4 style="color: white; margin-bottom: 0.5rem;">{photo.data.title}</h4>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin: 0;">{photo.data.description}</p>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(featuredPosts.length === 0 && featuredPhotos.length === 0) && (
+        <div>
+          <h3 style="text-align: center; margin-bottom: 2rem;">Recent Posts</h3>
+          <div class="grid grid-3">
+            {recentPosts.map((post) => (
+              <article class="post-card">
+                {post.data.heroImage && (
+                  <img src={post.data.heroImage} alt={post.data.title} class="post-card-image" />
+                )}
+                <div class="post-card-content">
+                  <h4 class="post-card-title">
+                    <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+                  </h4>
+                  <div class="post-card-meta">
+                    {post.data.pubDate.toLocaleDateString()} • {post.data.author}
+                  </div>
+                  <p class="post-card-excerpt">{post.data.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="section" style="background-color: #f9fafb;">
+    <div class="container">
+      <div class="grid grid-2" style="align-items: center;">
+        <div>
+          <h2>About This Space</h2>
+          <p>Welcome to a unique intersection of literature and photography. Here, stories unfold through words and images, creating a rich tapestry of human experience.</p>
+          <p>Whether you're drawn to intimate literary pieces, captivated by visual storytelling, or interested in bringing these art forms into your own space through our print store, you'll find something that resonates.</p>
+          <a href="/about" class="btn btn-primary">Learn More</a>
+        </div>
+        <div style="text-align: center;">
+          <!-- Placeholder for an about image -->
+          <div style="width: 100%; height: 300px; background: linear-gradient(45deg, #f3f4f6, #e5e7eb); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #6b7280;">
+            <p>About Image Placeholder</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="section">
+    <div class="container">
+      <div class="content-wrapper text-center">
+        <h2>Stay Connected</h2>
+        <p>Get notified when new stories and photographs are published. No spam, just thoughtful content delivered to your inbox.</p>
+        <a href="/subscribe" class="btn btn-primary">Subscribe to Newsletter</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPhotos = await getCollection('photography');
+const sortedPhotos = allPhotos.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const featuredPhotos = sortedPhotos.filter(photo => photo.data.featured);
+const regularPhotos = sortedPhotos.filter(photo => !photo.data.featured);
+---
+
+<BaseLayout title="Photography Gallery - Literary Photography" description="Explore our curated collection of photographs. Each image tells a story, capturing moments and emotions that complement our literary works.">
+  <div class="content-wrapper">
+    <header class="text-center" style="margin-bottom: 3rem;">
+      <h1>Photography Gallery</h1>
+      <p style="font-size: 1.125rem; color: #6b7280;">Visual stories captured through the lens</p>
+    </header>
+
+    {featuredPhotos.length > 0 && (
+      <section style="margin-bottom: 4rem;">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: #1f2937;">Featured Photography</h2>
+        <div class="photo-grid">
+          {featuredPhotos.map((photo) => (
+            <div class="photo-item">
+              <a href={`/photography/${photo.slug}`}>
+                <img 
+                  src={photo.data.image} 
+                  alt={photo.data.altText}
+                  loading="lazy"
+                />
+                <div class="photo-overlay">
+                  <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.125rem;">{photo.data.title}</h3>
+                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 0.875rem;">
+                    {photo.data.location && `${photo.data.location} • `}
+                    {photo.data.pubDate.toLocaleDateString()}
+                  </p>
+                  {photo.data.available_for_print && (
+                    <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; margin-top: 0.5rem;">
+                      Available as Print
+                    </span>
+                  )}
+                </div>
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {sortedPhotos.length > 0 ? (
+      <section>
+        <h2 style="text-align: center; margin-bottom: 2rem; color: #1f2937;">
+          {featuredPhotos.length > 0 ? 'All Photography' : 'Photography Collection'}
+        </h2>
+        <div class="photo-grid">
+          {(featuredPhotos.length > 0 ? regularPhotos : sortedPhotos).map((photo) => (
+            <div class="photo-item">
+              <a href={`/photography/${photo.slug}`}>
+                <img 
+                  src={photo.data.image} 
+                  alt={photo.data.altText}
+                  loading="lazy"
+                />
+                <div class="photo-overlay">
+                  <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.125rem;">{photo.data.title}</h3>
+                  <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 0.875rem;">
+                    {photo.data.location && `${photo.data.location} • `}
+                    {photo.data.pubDate.toLocaleDateString()}
+                  </p>
+                  {photo.data.available_for_print && (
+                    <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; margin-top: 0.5rem;">
+                      Available as Print
+                    </span>
+                  )}
+                  {photo.data.tags.length > 0 && (
+                    <div style="margin-top: 0.5rem;">
+                      {photo.data.tags.slice(0, 2).map((tag) => (
+                        <span style="display: inline-block; background: rgba(255, 255, 255, 0.15); color: white; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.75rem; margin-right: 0.25rem;">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+    ) : (
+      <div class="text-center" style="padding: 3rem 0;">
+        <h3>Gallery Coming Soon</h3>
+        <p style="color: #6b7280;">Check back soon for new photographs and visual stories.</p>
+      </div>
+    )}
+
+    <!-- Call to Action -->
+    <section class="text-center" style="margin-top: 4rem; padding: 3rem 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.5rem; color: white;">
+      <h2 style="color: white; margin-bottom: 1rem;">Love What You See?</h2>
+      <p style="margin-bottom: 2rem; opacity: 0.9;">Bring these images into your space with high-quality prints, or stay updated with new additions to our gallery.</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/store" class="btn btn-primary" style="background: white; color: #667eea;">Browse Prints</a>
+        <a href="/subscribe" class="btn btn-secondary" style="border: 2px solid white; background: transparent;">Subscribe for Updates</a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // Simple lightbox functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const photoItems = document.querySelectorAll('.photo-item a');
+    
+    photoItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        // For now, just let the link work normally
+        // In the future, you could implement a lightbox here
+      });
+    });
+  });
+</script>

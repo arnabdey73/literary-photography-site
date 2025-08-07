@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+// Get related posts
+const allPosts = await getCollection('blog');
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== post.slug && p.data.category === post.data.category)
+  .slice(0, 3);
+---
+
+<BaseLayout 
+  title={`${post.data.title} - Literary Photography`}
+  description={post.data.description}
+  image={post.data.heroImage}
+>
+  <article>
+    <!-- Hero Image -->
+    {post.data.heroImage && (
+      <div style="width: 100%; height: 400px; overflow: hidden; margin-bottom: 2rem;">
+        <img 
+          src={post.data.heroImage} 
+          alt={post.data.title}
+          style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;"
+        />
+      </div>
+    )}
+
+    <!-- Article Header -->
+    <header class="content-wrapper">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+        <span class={`tag ${post.data.category === 'literary' ? 'tag-literary' : 'tag-general'}`}>
+          {post.data.category === 'literary' ? 'Literary' : 'General'}
+        </span>
+        {post.data.featured && <span class="tag tag-featured">Featured</span>}
+      </div>
+      
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">{post.data.title}</h1>
+      
+      <div style="color: #6b7280; margin-bottom: 1rem;">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </time>
+        • by {post.data.author}
+        {post.data.updatedDate && (
+          <span> • Updated {post.data.updatedDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}</span>
+        )}
+      </div>
+
+      {post.data.tags.length > 0 && (
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem;">
+          {post.data.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- Article Content -->
+    <div class="content-wrapper prose">
+      <Content />
+    </div>
+
+    <!-- Navigation -->
+    <div class="content-wrapper" style="border-top: 1px solid #e5e7eb; padding-top: 2rem; margin-top: 3rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <a href="/blog" class="btn btn-secondary">← Back to Blog</a>
+        {post.data.category === 'literary' && (
+          <a href="/blog/literary" class="btn btn-secondary">More Literary Posts</a>
+        )}
+      </div>
+    </div>
+
+    <!-- Related Posts -->
+    {relatedPosts.length > 0 && (
+      <section class="section" style="background-color: #f9fafb;">
+        <div class="container">
+          <h3 style="text-align: center; margin-bottom: 2rem;">Related Posts</h3>
+          <div class="grid grid-3">
+            {relatedPosts.map((relatedPost) => (
+              <article class="post-card">
+                {relatedPost.data.heroImage && (
+                  <img src={relatedPost.data.heroImage} alt={relatedPost.data.title} class="post-card-image" />
+                )}
+                <div class="post-card-content">
+                  <h4 class="post-card-title">
+                    <a href={`/blog/${relatedPost.slug}`}>{relatedPost.data.title}</a>
+                  </h4>
+                  <div class="post-card-meta">
+                    {relatedPost.data.pubDate.toLocaleDateString()} • {relatedPost.data.author}
+                  </div>
+                  <p class="post-card-excerpt">{relatedPost.data.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .tag-literary {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  .tag-general {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .tag-featured {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+</style>

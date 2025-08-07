@@ -1,0 +1,182 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const photos = await getCollection('photography');
+  return photos.map((photo) => ({
+    params: { slug: photo.slug },
+    props: { photo },
+  }));
+}
+
+const { photo } = Astro.props;
+const { Content } = await photo.render();
+
+// Get related photos
+const allPhotos = await getCollection('photography');
+const relatedPhotos = allPhotos
+  .filter((p) => p.slug !== photo.slug)
+  .filter((p) => p.data.tags.some(tag => photo.data.tags.includes(tag)))
+  .slice(0, 4);
+
+// If no tag matches, get recent photos
+if (relatedPhotos.length === 0) {
+  relatedPhotos.push(...allPhotos
+    .filter((p) => p.slug !== photo.slug)
+    .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+    .slice(0, 4)
+  );
+}
+---
+
+<BaseLayout 
+  title={`${photo.data.title} - Photography`}
+  description={photo.data.description}
+  image={photo.data.image}
+>
+  <article>
+    <!-- Photo Display -->
+    <div style="max-width: 1000px; margin: 0 auto; padding: 2rem 1rem;">
+      <div style="position: relative; width: 100%; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);">
+        <img 
+          src={photo.data.image} 
+          alt={photo.data.altText}
+          style="width: 100%; height: auto; display: block;"
+        />
+      </div>
+    </div>
+
+    <!-- Photo Details -->
+    <div class="content-wrapper">
+      <header>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+          {photo.data.featured && <span class="tag tag-featured">Featured</span>}
+          {photo.data.available_for_print && (
+            <span class="tag tag-print">Available as Print</span>
+          )}
+        </div>
+        
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">{photo.data.title}</h1>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem;">
+          <div>
+            <strong>Date:</strong>
+            <time datetime={photo.data.pubDate.toISOString()}>
+              {photo.data.pubDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </div>
+          
+          {photo.data.location && (
+            <div>
+              <strong>Location:</strong> {photo.data.location}
+            </div>
+          )}
+          
+          {photo.data.camera && (
+            <div>
+              <strong>Camera:</strong> {photo.data.camera}
+            </div>
+          )}
+        </div>
+
+        {photo.data.tags.length > 0 && (
+          <div style="margin-bottom: 2rem;">
+            <strong style="display: block; margin-bottom: 0.5rem;">Tags:</strong>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              {photo.data.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </header>
+
+      <!-- Photo Story/Description -->
+      <div class="prose" style="margin-bottom: 3rem;">
+        <Content />
+      </div>
+
+      <!-- Print Store CTA -->
+      {photo.data.available_for_print && (
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 0.5rem; text-align: center; margin-bottom: 3rem;">
+          <h3 style="color: white; margin-bottom: 1rem;">Love This Image?</h3>
+          <p style="margin-bottom: 2rem; opacity: 0.9;">This photograph is available as a high-quality print in various sizes and formats.</p>
+          <a href="/store" class="btn btn-primary" style="background: white; color: #667eea;">Browse Print Options</a>
+        </div>
+      )}
+
+      <!-- Navigation -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-top: 1px solid #e5e7eb; padding-top: 2rem;">
+        <a href="/photography" class="btn btn-secondary">← Back to Gallery</a>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="sharePhoto()" class="btn btn-secondary">Share</button>
+          {photo.data.available_for_print && (
+            <a href="/store" class="btn btn-primary">Get Print</a>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Photos -->
+    {relatedPhotos.length > 0 && (
+      <section class="section" style="background-color: #f9fafb;">
+        <div class="container">
+          <h3 style="text-align: center; margin-bottom: 2rem;">Related Photography</h3>
+          <div class="photo-grid">
+            {relatedPhotos.map((relatedPhoto) => (
+              <div class="photo-item">
+                <a href={`/photography/${relatedPhoto.slug}`}>
+                  <img 
+                    src={relatedPhoto.data.image} 
+                    alt={relatedPhoto.data.altText}
+                    loading="lazy"
+                  />
+                  <div class="photo-overlay">
+                    <h4 style="color: white; margin-bottom: 0.5rem;">{relatedPhoto.data.title}</h4>
+                    <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 0.875rem;">
+                      {relatedPhoto.data.location && `${relatedPhoto.data.location} • `}
+                      {relatedPhoto.data.pubDate.toLocaleDateString()}
+                    </p>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .tag-featured {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+  
+  .tag-print {
+    background-color: #ecfdf5;
+    color: #059669;
+  }
+</style>
+
+<script>
+  function sharePhoto() {
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        url: window.location.href
+      });
+    } else {
+      // Fallback - copy URL to clipboard
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
+  }
+</script>

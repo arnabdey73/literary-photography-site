@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const literaryPosts = sortedPosts.filter(post => post.data.category === 'literary');
+const generalPosts = sortedPosts.filter(post => post.data.category === 'general');
+---
+
+<BaseLayout title="Blog - Literary Photography" description="Explore our collection of stories, essays, and literary works. Discover the intersection of words and images.">
+  <div class="content-wrapper">
+    <header class="text-center" style="margin-bottom: 3rem;">
+      <h1>Blog</h1>
+      <p style="font-size: 1.125rem; color: #6b7280;">Stories, essays, and thoughts on the intersection of literature and photography</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 3rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+      <a href="/blog" style="color: #3b82f6; font-weight: 600; border-bottom: 2px solid #3b82f6; padding-bottom: 0.5rem;">All Posts</a>
+      <a href="/blog/literary" style="color: #6b7280; font-weight: 500;">Literary Only</a>
+    </div>
+
+    {sortedPosts.length > 0 ? (
+      <div class="grid grid-2">
+        {sortedPosts.map((post) => (
+          <article class="post-card">
+            {post.data.heroImage && (
+              <img src={post.data.heroImage} alt={post.data.title} class="post-card-image" />
+            )}
+            <div class="post-card-content">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span class={`tag ${post.data.category === 'literary' ? 'tag-literary' : 'tag-general'}`}>
+                  {post.data.category === 'literary' ? 'Literary' : 'General'}
+                </span>
+                {post.data.featured && <span class="tag tag-featured">Featured</span>}
+              </div>
+              
+              <h2 class="post-card-title">
+                <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+              </h2>
+              
+              <div class="post-card-meta">
+                {post.data.pubDate.toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })} • {post.data.author}
+              </div>
+              
+              <p class="post-card-excerpt">{post.data.description}</p>
+              
+              {post.data.tags.length > 0 && (
+                <div class="post-card-tags">
+                  {post.data.tags.slice(0, 4).map((tag) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center" style="padding: 3rem 0;">
+        <h3>No posts yet</h3>
+        <p style="color: #6b7280;">Check back soon for new stories and essays.</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-literary {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  .tag-general {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .tag-featured {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+</style>

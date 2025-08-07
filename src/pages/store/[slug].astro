@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// This is a placeholder for future product pages
+// When the store is implemented, this will handle individual product pages
+
+export async function getStaticPaths() {
+  // For now, return empty array since no products exist yet
+  return [];
+}
+
+const { slug } = Astro.params;
+---
+
+<BaseLayout title={`Product: ${slug} - Literary Photography Store`} description="Product details for our print store.">
+  <div class="content-wrapper">
+    <article>
+      <h1>Product: {slug}</h1>
+      <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem; padding: 2rem; text-align: center;">
+        <h2 style="color: #92400e; margin-bottom: 1rem;">🚧 Store Coming Soon</h2>
+        <p style="color: #92400e; margin-bottom: 1rem;">Individual product pages will be available when our print store launches.</p>
+        <a href="/store" class="btn btn-primary">Back to Store</a>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

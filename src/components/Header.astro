@@ -1,0 +1,100 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="container">
+    <a href="/" class="logo">
+      <h1>Literary Photography</h1>
+    </a>
+    
+    <nav class="nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="/" class={currentPath === '/' ? 'nav-link active' : 'nav-link'}>Home</a>
+        </li>
+        <li class="nav-item">
+          <a href="/blog" class={currentPath.startsWith('/blog') ? 'nav-link active' : 'nav-link'}>Blog</a>
+        </li>
+        <li class="nav-item">
+          <a href="/photography" class={currentPath.startsWith('/photography') ? 'nav-link active' : 'nav-link'}>Photography</a>
+        </li>
+        <li class="nav-item">
+          <a href="/store" class={currentPath.startsWith('/store') ? 'nav-link active' : 'nav-link'}>Store</a>
+        </li>
+        <li class="nav-item">
+          <a href="/about" class={currentPath === '/about' ? 'nav-link active' : 'nav-link'}>About</a>
+        </li>
+        <li class="nav-item">
+          <a href="/subscribe" class={currentPath === '/subscribe' ? 'nav-link active' : 'nav-link'}>Subscribe</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 4rem;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #111827;
+    text-decoration: none;
+  }
+  
+  .logo {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: #6b7280;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .nav-link:hover,
+  .nav-link.active {
+    color: #111827;
+  }
+  
+  @media (max-width: 768px) {
+    .nav-list {
+      gap: 1rem;
+    }
+    
+    .container {
+      padding: 0 0.5rem;
+    }
+    
+    .logo h1 {
+      font-size: 1.25rem;
+    }
+  }
+</style>
