@@ -1,78 +1,155 @@
 # Literary Photography Site
 
-Welcome to the Literary Photography Site! This project is designed to be a unified platform that combines a literary blog, a photography showcase, and a print store. Below is an overview of the project's structure and features.
+A modern Astro-powered website showcasing the intersection of literature and photography. Built for [arnabdey.art](https://arnabdey.art).
 
-## Project Structure
+## 🌟 Features
 
-The project is organized as follows:
+- **Literary Blog**: Substack-like experience with general and literary-focused posts
+- **Photography Gallery**: Grid-based showcase with individual photo stories
+- **Print Store**: Foundation for future e-commerce integration
+- **Responsive Design**: Beautiful across all devices
+- **SEO Optimized**: Proper meta tags and structured data
+- **Content Collections**: Type-safe blog posts and photography
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Astro](https://astro.build/)
+- **Deployment**: [Vercel](https://vercel.com/)
+- **Styling**: Modern CSS with utility classes
+- **Content**: Markdown with frontmatter
+- **TypeScript**: Full type safety
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/arnabdey73/literary-photography-site.git
+   cd literary-photography-site
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:4321](http://localhost:4321) in your browser.
+
+## 📝 Adding Content
+
+### Blog Posts
+
+Create new blog posts by adding Markdown files to `src/content/blog/`:
+
+```markdown
+---
+title: "Your Post Title"
+description: "A brief description"
+pubDate: 2025-01-01
+author: "Your Name"
+tags: ["tag1", "tag2"]
+category: "general" # or "literary"
+featured: false
+---
+
+Your content here...
+```
+
+### Photography
+
+Add new photographs by creating Markdown files in `src/content/photography/`:
+
+```markdown
+---
+title: "Photo Title"
+description: "Photo description"
+pubDate: 2025-01-01
+image: "/images/photography/your-photo.jpg"
+altText: "Descriptive alt text"
+location: "Photo location"
+tags: ["tag1", "tag2"]
+featured: false
+available_for_print: true
+---
+
+The story behind this photograph...
+```
+
+## 🗂️ Project Structure
 
 ```
-literary-photography-site
-├── src
-│   ├── pages
-│   │   ├── index.astro           # Landing page with introduction and highlights
-│   │   ├── about.astro           # Information about the site or author
-│   │   ├── subscribe.astro       # Newsletter signup page
-│   │   ├── blog
-│   │   │   ├── index.astro       # Main blog index listing all posts
-│   │   │   ├── literary
-│   │   │   │   ├── index.astro   # Literary-only posts index
-│   │   │   │   └── [slug].astro   # Individual literary blog post
-│   │   │   └── [slug].astro      # Individual blog post
-│   │   ├── photography
-│   │   │   ├── index.astro       # Photo gallery grid
-│   │   │   └── [slug].astro      # Individual photography project
-│   │   └── store
-│   │       ├── index.astro       # Print store landing page (to be built later)
-│   │       └── [slug].astro      # Individual print/product page (later)
-│   ├── components
-│   │   ├── Header.astro          # Header component for navigation
-│   │   ├── Footer.astro          # Footer component for additional info
-│   │   └── Layout.astro          # Layout component for consistent structure
-│   ├── layouts
-│   │   └── BaseLayout.astro      # Base layout for all pages
-│   ├── styles
-│   │   └── global.css            # Global styles for the site
-│   └── content
-│       ├── blog                  # Directory for blog content
-│       └── photography           # Directory for photography content
-├── public
-│   └── favicon.svg               # Favicon for the site
-├── astro.config.mjs              # Configuration settings for the Astro project
-├── package.json                  # npm configuration file
-├── tsconfig.json                 # TypeScript configuration file
-└── README.md                     # Project documentation
+/
+├── public/
+│   ├── images/
+│   │   ├── blog/
+│   │   └── photography/
+│   └── favicon.svg
+├── src/
+│   ├── components/
+│   │   ├── Header.astro
+│   │   └── Footer.astro
+│   ├── content/
+│   │   ├── blog/
+│   │   ├── photography/
+│   │   └── config.ts
+│   ├── layouts/
+│   │   └── BaseLayout.astro
+│   ├── pages/
+│   │   ├── blog/
+│   │   ├── photography/
+│   │   ├── store/
+│   │   ├── about.astro
+│   │   ├── index.astro
+│   │   └── subscribe.astro
+│   └── styles/
+│       └── global.css
+├── astro.config.mjs
+└── package.json
 ```
 
-## Features
+## 🎨 Customization
 
-- **Literary Blog**: A dedicated section for literary posts, allowing for rich text content and embedded images.
-- **Photography Showcase**: A visually appealing gallery to display photography in a grid format, with lightbox functionality for individual images.
-- **Print Store**: A future feature that will allow users to purchase prints and merchandise.
-- **Responsive Design**: The site is designed to be clean and responsive, ensuring a good user experience across devices.
+- **Styling**: Edit `src/styles/global.css`
+- **Components**: Modify components in `src/components/`
+- **Layout**: Update `src/layouts/BaseLayout.astro`
+- **Site Config**: Edit `astro.config.mjs`
 
-## Getting Started
+## 📦 Building & Deployment
 
-To get started with the project, clone the repository and install the dependencies:
+### Build for Production
 
 ```bash
-git clone <repository-url>
-cd literary-photography-site
-npm install
+npm run build
 ```
 
-To run the development server:
+### Deploy to Vercel
+
+The site automatically deploys to Vercel when you push to the main branch. You can also deploy manually:
 
 ```bash
-npm run dev
+npx vercel --prod
 ```
 
-Visit `http://localhost:3000` in your browser to see the site in action.
+## 🔗 Links
 
-## Contributing
+- **Live Site**: [arnabdey.art](https://arnabdey.art)
+- **GitHub Repository**: [github.com/arnabdey73/literary-photography-site](https://github.com/arnabdey73/literary-photography-site)
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
+## 📄 License
 
-## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+---
+
+Built with ❤️ using [Astro](https://astro.build/)
