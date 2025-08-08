@@ -3,6 +3,6 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://arnabdey.art',
-  output: 'static',
+  output: 'server', // Changed to 'server' to enable API routes
   adapter: vercel(),
 });

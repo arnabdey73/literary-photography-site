@@ -28,6 +28,9 @@ const currentPath = Astro.url.pathname;
         <li class="nav-item">
           <a href="/subscribe" class={currentPath === '/subscribe' ? 'nav-link active' : 'nav-link'}>Subscribe</a>
         </li>
+        <li class="nav-item">
+          <a href="/insights" class={currentPath.startsWith('/insights') ? 'nav-link active insights-link' : 'nav-link insights-link'} title="Private Analytics">📊</a>
+        </li>
       </ul>
     </nav>
   </div>
@@ -82,6 +85,18 @@ const currentPath = Astro.url.pathname;
   .nav-link:hover,
   .nav-link.active {
     color: #111827;
+  }
+  
+  .insights-link {
+    opacity: 0.7;
+    font-size: 1.2rem;
+    padding: 0.25rem 0.5rem !important;
+  }
+  
+  .insights-link:hover {
+    opacity: 1;
+    background: rgba(109, 40, 217, 0.1);
+    border-radius: 4px;
   }
   
   @media (max-width: 768px) {

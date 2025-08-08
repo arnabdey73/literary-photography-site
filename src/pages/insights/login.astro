@@ -1,0 +1,194 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Handle login form submission
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const password = formData.get('password');
+  
+  // Simple password check - replace with your secure password
+  // In production, use environment variables and proper hashing
+  const INSIGHTS_PASSWORD = 'Nikon_d3100'; // Change this to your secure password!
+  
+  if (password === INSIGHTS_PASSWORD) {
+    // Set authentication cookie
+    Astro.cookies.set('insights-auth', 'authenticated', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    });
+    
+    return Astro.redirect('/insights');
+  } else {
+    // Invalid password
+    var loginError = 'Invalid password. Please try again.';
+  }
+}
+---
+
+<BaseLayout title="Insights Login" description="Access private analytics dashboard">
+  <main class="login-page">
+    <div class="container">
+      <div class="login-form-container">
+        <div class="login-header">
+          <h1>Analytics Access</h1>
+          <p>Enter your password to view private insights</p>
+        </div>
+
+        <form method="post" class="login-form">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              required 
+              autocomplete="current-password"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          {loginError && (
+            <div class="error-message">
+              {loginError}
+            </div>
+          )}
+
+          <button type="submit" class="btn btn-primary">
+            Access Insights
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <a href="/" class="back-link">← Back to site</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-background) 0%, var(--color-card) 100%);
+      padding: 2rem;
+    }
+
+    .login-form-container {
+      background: var(--color-card);
+      padding: 3rem;
+      border-radius: 16px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      margin: 0 0 0.5rem 0;
+      color: var(--color-text);
+      font-size: 1.75rem;
+    }
+
+    .login-header p {
+      margin: 0;
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      color: var(--color-text);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: var(--color-background);
+      color: var(--color-text);
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+    }
+
+    .error-message {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: color-mix(in srgb, var(--color-primary) 90%, black);
+      transform: translateY(-1px);
+    }
+
+    .login-footer {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .back-link {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--color-text);
+    }
+
+    @media (max-width: 480px) {
+      .login-form-container {
+        padding: 2rem 1.5rem;
+      }
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,470 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Simple auth check - you can enhance this with proper authentication later
+const authCookie = Astro.cookies.get('insights-auth');
+const isAuthenticated = authCookie?.value === 'authenticated';
+
+// If not authenticated, redirect to login
+if (!isAuthenticated) {
+  return Astro.redirect('/insights/login');
+}
+---
+
+<BaseLayout title="Analytics Insights" description="Private analytics dashboard">
+  <main class="insights-dashboard">
+    <div class="container">
+      <header class="insights-header">
+        <h1>Analytics Insights</h1>
+        <p class="subtitle">Private dashboard for site analytics and user data</p>
+        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+      </header>
+
+      <div class="insights-grid">
+        <!-- Overview Cards -->
+        <section class="overview-cards">
+          <div class="card">
+            <h3>Total Visitors</h3>
+            <div class="metric" id="total-visitors">Loading...</div>
+            <span class="change positive">+12.5% from last month</span>
+          </div>
+          
+          <div class="card">
+            <h3>Page Views</h3>
+            <div class="metric" id="page-views">Loading...</div>
+            <span class="change positive">+8.3% from last month</span>
+          </div>
+          
+          <div class="card">
+            <h3>Blog Engagement</h3>
+            <div class="metric" id="blog-engagement">Loading...</div>
+            <span class="change neutral">-2.1% from last month</span>
+          </div>
+          
+          <div class="card">
+            <h3>Photo Gallery Views</h3>
+            <div class="metric" id="gallery-views">Loading...</div>
+            <span class="change positive">+15.7% from last month</span>
+          </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+          <div class="chart-container">
+            <h3>Traffic Overview (Last 30 Days)</h3>
+            <canvas id="traffic-chart"></canvas>
+          </div>
+          
+          <div class="chart-container">
+            <h3>Top Pages</h3>
+            <div class="top-pages" id="top-pages">
+              <div class="page-item">
+                <span class="page-url">/blog/literary/finding-light</span>
+                <span class="page-views">1,234 views</span>
+              </div>
+              <div class="page-item">
+                <span class="page-url">/photography/urban-nights</span>
+                <span class="page-views">987 views</span>
+              </div>
+              <div class="page-item">
+                <span class="page-url">/</span>
+                <span class="page-views">856 views</span>
+              </div>
+              <div class="page-item">
+                <span class="page-url">/about</span>
+                <span class="page-views">543 views</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- User Behavior Section -->
+        <section class="behavior-section">
+          <div class="behavior-container">
+            <h3>User Behavior</h3>
+            <div class="behavior-metrics">
+              <div class="metric-item">
+                <label>Avg. Session Duration</label>
+                <span id="avg-session">3m 42s</span>
+              </div>
+              <div class="metric-item">
+                <label>Bounce Rate</label>
+                <span id="bounce-rate">34.2%</span>
+              </div>
+              <div class="metric-item">
+                <label>Pages per Session</label>
+                <span id="pages-per-session">2.8</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="behavior-container">
+            <h3>Traffic Sources</h3>
+            <div class="traffic-sources" id="traffic-sources">
+              <div class="source-item">
+                <span class="source-name">Direct</span>
+                <span class="source-percent">45.2%</span>
+              </div>
+              <div class="source-item">
+                <span class="source-name">Social Media</span>
+                <span class="source-percent">28.7%</span>
+              </div>
+              <div class="source-item">
+                <span class="source-name">Search Engines</span>
+                <span class="source-percent">18.3%</span>
+              </div>
+              <div class="source-item">
+                <span class="source-name">Referral</span>
+                <span class="source-percent">7.8%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Newsletter & Engagement -->
+        <section class="engagement-section">
+          <div class="engagement-container">
+            <h3>Newsletter Subscriptions</h3>
+            <div class="metric large" id="newsletter-subs">247</div>
+            <span class="change positive">+23 this month</span>
+          </div>
+          
+          <div class="engagement-container">
+            <h3>Recent Activity</h3>
+            <div class="activity-feed" id="activity-feed">
+              <div class="activity-item">
+                <span class="activity-time">2 hours ago</span>
+                <span class="activity-desc">New blog comment on "Finding Light"</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-time">5 hours ago</span>
+                <span class="activity-desc">Newsletter subscription from New York</span>
+              </div>
+              <div class="activity-item">
+                <span class="activity-time">1 day ago</span>
+                <span class="activity-desc">Photo download: Urban Nights #3</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .insights-dashboard {
+      min-height: 100vh;
+      background: var(--color-background);
+      padding: 2rem 0;
+    }
+
+    .insights-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .insights-header h1 {
+      margin: 0;
+      color: var(--color-text);
+    }
+
+    .subtitle {
+      color: var(--color-text-secondary);
+      margin: 0.5rem 0 0 0;
+    }
+
+    .insights-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .overview-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--color-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h3 {
+      margin: 0 0 1rem 0;
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .metric.large {
+      font-size: 3rem;
+    }
+
+    .change {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .change.positive { color: #10b981; }
+    .change.negative { color: #ef4444; }
+    .change.neutral { color: var(--color-text-secondary); }
+
+    .charts-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      background: var(--color-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .chart-container h3 {
+      margin: 0 0 1.5rem 0;
+      color: var(--color-text);
+    }
+
+    #traffic-chart {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(45deg, #f9fafb 25%, transparent 25%, transparent 75%, #f9fafb 75%, #f9fafb),
+                  linear-gradient(45deg, #f9fafb 25%, transparent 25%, transparent 75%, #f9fafb 75%, #f9fafb);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+
+    #traffic-chart::after {
+      content: "Chart will load here with real analytics data";
+    }
+
+    .top-pages {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .page-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .page-item:last-child {
+      border-bottom: none;
+    }
+
+    .page-url {
+      font-family: 'Courier New', monospace;
+      color: var(--color-text);
+      font-size: 0.9rem;
+    }
+
+    .page-views {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .behavior-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .behavior-container {
+      background: var(--color-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .behavior-container h3 {
+      margin: 0 0 1.5rem 0;
+      color: var(--color-text);
+    }
+
+    .behavior-metrics {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-item label {
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .metric-item span {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .traffic-sources {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .source-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .source-name {
+      color: var(--color-text);
+    }
+
+    .source-percent {
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+
+    .engagement-section {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+
+    .engagement-container {
+      background: var(--color-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+    }
+
+    .engagement-container h3 {
+      margin: 0 0 1.5rem 0;
+      color: var(--color-text);
+    }
+
+    .activity-feed {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .activity-item {
+      display: grid;
+      gap: 0.25rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      color: var(--color-text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .activity-desc {
+      color: var(--color-text);
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-secondary {
+      background: var(--color-border);
+      color: var(--color-text);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-text-secondary);
+      color: var(--color-background);
+    }
+
+    @media (max-width: 768px) {
+      .insights-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .charts-section,
+      .behavior-section,
+      .engagement-section {
+        grid-template-columns: 1fr;
+      }
+
+      .overview-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    // Logout functionality
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (response.ok) {
+        window.location.href = '/insights/login';
+      }
+    });
+
+    // Simulate loading analytics data
+    // In a real implementation, you'd fetch this from your analytics API
+    function loadAnalyticsData() {
+      // Simulate API calls
+      setTimeout(() => {
+        document.getElementById('total-visitors').textContent = '2,847';
+        document.getElementById('page-views').textContent = '12,456';
+        document.getElementById('blog-engagement').textContent = '68.3%';
+        document.getElementById('gallery-views').textContent = '3,291';
+      }, 500);
+    }
+
+    // Load data when page loads
+    loadAnalyticsData();
+
+    // Refresh data every 5 minutes
+    setInterval(loadAnalyticsData, 5 * 60 * 1000);
+  </script>
+</BaseLayout>
