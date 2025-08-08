@@ -2,6 +2,8 @@
 
 A modern Astro-powered website showcasing the intersection of literature and photography. Built for [arnabdey.art](https://arnabdey.art).
 
+✅ **Automatic Deployment**: Connected to Vercel for automatic deployments on every push to main branch.
+
 ## 🌟 Features
 
 - **Literary Blog**: Substack-like experience with general and literary-focused posts
