@@ -454,10 +454,15 @@ if (!isAuthenticated) {
     function loadAnalyticsData() {
       // Simulate API calls
       setTimeout(() => {
-        document.getElementById('total-visitors').textContent = '2,847';
-        document.getElementById('page-views').textContent = '12,456';
-        document.getElementById('blog-engagement').textContent = '68.3%';
-        document.getElementById('gallery-views').textContent = '3,291';
+        const totalVisitors = document.getElementById('total-visitors');
+        const pageViews = document.getElementById('page-views');
+        const blogEngagement = document.getElementById('blog-engagement');
+        const galleryViews = document.getElementById('gallery-views');
+        
+        if (totalVisitors) totalVisitors.textContent = '2,847';
+        if (pageViews) pageViews.textContent = '12,456';
+        if (blogEngagement) blogEngagement.textContent = '68.3%';
+        if (galleryViews) galleryViews.textContent = '3,291';
       }, 500);
     }
 

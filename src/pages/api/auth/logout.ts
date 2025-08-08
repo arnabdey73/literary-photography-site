@@ -1,4 +1,4 @@
-export async function POST({ cookies, redirect }) {
+export async function POST({ cookies }: { cookies: any }) {
   // Clear the authentication cookie
   cookies.delete('insights-auth', {
     path: '/'

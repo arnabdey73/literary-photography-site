@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
+let loginError: string | undefined;
+
 // Handle login form submission
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
@@ -22,7 +24,7 @@ if (Astro.request.method === 'POST') {
     return Astro.redirect('/insights');
   } else {
     // Invalid password
-    var loginError = 'Invalid password. Please try again.';
+    loginError = 'Invalid password. Please try again.';
   }
 }
 ---
