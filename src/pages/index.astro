@@ -4,220 +4,234 @@ export const prerender = true;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-// Get featured blog posts and photography
-const blogPosts = await getCollection('blog');
-const photos = await getCollection('photography');
-
-const featuredPosts = blogPosts
-  .filter(post => post.data.featured)
-  .slice(0, 3)
+const photos = (await getCollection('photography'))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+const poems = (await getCollection('poetry'))
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
-const featuredPhotos = photos
-  .filter(photo => photo.data.featured)
-  .slice(0, 6);
+const heroPhoto = photos.find((p) => p.data.featured) ?? photos[0];
 
-const recentPosts = blogPosts
-  .slice(0, 3)
-  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+// Featured "plates" — photographs that carry a verse
+const plates = photos.filter((p) => p.data.featured && p.data.verse).slice(0, 3);
+const gridPhotos = (plates.length ? photos.filter((p) => !plates.includes(p)) : photos).slice(0, 6);
+
+const featuredPoems = (poems.filter((p) => p.data.featured).length ? poems.filter((p) => p.data.featured) : poems).slice(0, 3);
 ---
 
-<BaseLayout title="Literary Photography - Where Words Meet Images" description="A curated blend of literary works and stunning photography. Explore stories, poems, and visual narratives that capture the essence of human experience.">
-  
-  <!-- Hero Section - Full Screen Impact -->
+<BaseLayout
+  title="Arnab Dey — Photographs & Verse"
+  description="A dark gallery where photographs are paired with verse. Landscape and visual poetry by Arnab Dey, with fine-art prints available."
+  image={heroPhoto?.data.image}
+>
+  <!-- Hero -->
   <section class="hero">
+    {heroPhoto && (
+      <img class="hero-img" src={heroPhoto.data.image} alt={heroPhoto.data.altText} fetchpriority="high" />
+    )}
+    <div class="hero-scrim"></div>
     <div class="hero-content">
-      <span class="section-tag">Welcome to our creative space</span>
-      <h1>Where Words<br/>Meet Images</h1>
-      <p>A curated blend of literary works and stunning photography that captures the essence of human experience.</p>
-      <div class="hero-buttons">
-        <a href="/blog" class="btn btn-primary">Explore Stories</a>
-        <a href="/photography" class="btn btn-secondary" style="color: white; border-color: rgba(255,255,255,0.5);">View Gallery</a>
+      <span class="eyebrow">Photographs &amp; Verse</span>
+      <h1>Where light<br/>meets language</h1>
+      {heroPhoto?.data.verse && <p class="hero-verse verse">{heroPhoto.data.verse}</p>}
+      <div class="hero-actions">
+        <a href="/photography" class="btn btn-primary">Enter the Gallery</a>
+        <a href="/poetry" class="btn">Read the Verse</a>
       </div>
     </div>
+    <a href="#featured" class="hero-scroll" aria-label="Scroll to content">&#8595;</a>
   </section>
 
-  <!-- Stats Section -->
-  <section class="section section-alt">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <h3>{blogPosts.length * 12}+</h3>
-          <p>Stories Written</p>
-        </div>
-        <div class="stat-item">
-          <h3>{photos.length * 25}+</h3>
-          <p>Photos Captured</p>
-        </div>
-        <div class="stat-item">
-          <h3>5K+</h3>
-          <p>Happy Readers</p>
-        </div>
-        <div class="stat-item">
-          <h3>50+</h3>
-          <p>Countries Reached</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Featured Content Section -->
-  <section class="section">
-    <div class="container">
-      <div class="section-title">
-        <span class="section-tag">Featured</span>
-        <h2>Latest Stories</h2>
-        <p>Discover our most recent tales and visual narratives</p>
-      </div>
-
-      {(featuredPosts.length > 0 || recentPosts.length > 0) && (
-        <div class="grid grid-3">
-          {(featuredPosts.length > 0 ? featuredPosts : recentPosts).map((post) => (
-            <article class="post-card">
-              <div class="post-card-image-wrapper">
-                {post.data.heroImage ? (
-                  <img src={post.data.heroImage} alt={post.data.title} class="post-card-image" />
-                ) : (
-                  <div class="post-card-image" style="background: linear-gradient(135deg, #e17055 0%, #fdcb6e 100%);"></div>
-                )}
-              </div>
-              <div class="post-card-content">
-                <div class="post-card-meta">
-                  {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </div>
-                <h4 class="post-card-title">
-                  <a href={`/blog/${post.slug}`}>{post.data.title}</a>
-                </h4>
-                <p class="post-card-excerpt">{post.data.description}</p>
-                {post.data.tags && post.data.tags.length > 0 && (
-                  <div class="post-card-tags">
-                    {post.data.tags.slice(0, 2).map((tag: string) => (
-                      <span class="tag">{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-      
-      <div style="text-align: center; margin-top: 3rem;">
-        <a href="/blog" class="btn btn-secondary">View All Stories</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Photography Section -->
-  {(featuredPhotos.length > 0 || photos.length > 0) && (
-    <section class="section section-dark">
+  <!-- Featured plates: photo + verse -->
+  {plates.length > 0 && (
+    <section id="featured" class="section">
       <div class="container">
-        <div class="section-title">
-          <span class="section-tag" style="background: linear-gradient(135deg, #74b9ff, #a29bfe); color: #0984e3;">Gallery</span>
-          <h2>Visual Stories</h2>
-          <p>Moments captured through the lens, waiting to be explored</p>
+        <div class="section-head reveal">
+          <span class="eyebrow">Selected Plates</span>
+          <h2>Image &amp; verse, paired</h2>
+          <hr class="divider" />
+          <p>A photograph and a few lines of poetry, the way they were meant to be seen — together.</p>
         </div>
-
-        <div class="photo-grid">
-          {(featuredPhotos.length > 0 ? featuredPhotos : photos.slice(0, 6)).map((photo) => (
-            <div class="photo-item">
-              <a href={`/photography/${photo.slug}`}>
-                <img src={photo.data.image} alt={photo.data.altText} loading="lazy" />
-                <div class="photo-overlay">
-                  <h4>{photo.data.title}</h4>
-                  <p>{photo.data.description}</p>
-                </div>
-              </a>
-            </div>
+        <div class="plates">
+          {plates.map((photo, i) => (
+            <a href={`/photography/${photo.slug}`} class={`plate reveal ${i % 2 ? 'plate-reverse' : ''}`}>
+              <div class="plate-img"><img src={photo.data.image} alt={photo.data.altText} loading="lazy" /></div>
+              <div class="plate-body">
+                <p class="plate-verse verse">{photo.data.verse}</p>
+                <span class="plate-meta">{photo.data.title}{photo.data.location ? ` · ${photo.data.location}` : ''}</span>
+              </div>
+            </a>
           ))}
-        </div>
-        
-        <div style="text-align: center; margin-top: 3rem;">
-          <a href="/photography" class="btn btn-highlight">Explore Gallery</a>
         </div>
       </div>
     </section>
   )}
 
-  <!-- About Section - Split Layout -->
-  <section class="section">
-    <div class="container">
-      <div class="split-section">
-        <div class="split-content">
-          <span class="section-tag">Our Story</span>
-          <h2>A Space for Creative Souls</h2>
-          <p>Welcome to a unique intersection of literature and photography. Here, stories unfold through words and images, creating a rich tapestry of human experience.</p>
-          <p>Whether you're drawn to intimate literary pieces, captivated by visual storytelling, or interested in bringing these art forms into your own space through our print store, you'll find something that resonates.</p>
-          <a href="/about" class="btn btn-primary">Learn More About Us</a>
+  <!-- Gallery preview -->
+  {gridPhotos.length > 0 && (
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Gallery</span>
+          <h2>Recent work</h2>
         </div>
-        <div class="split-image">
-          <div class="image-placeholder" style="background: linear-gradient(135deg, #dfe6e9 0%, #b2bec3 100%); min-height: 400px;">
-            <span style="font-size: 3rem;">📷</span>
-          </div>
+        <div class="photo-grid reveal">
+          {gridPhotos.map((photo) => (
+            <a href={`/photography/${photo.slug}`} class="photo-item">
+              <img src={photo.data.image} alt={photo.data.altText} loading="lazy" />
+              <div class="photo-overlay">
+                <h3>{photo.data.title}</h3>
+                {photo.data.location && <p>{photo.data.location}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="text-center mt-8">
+          <a href="/photography" class="btn">View Full Gallery</a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
-  <!-- Features Section -->
+  <!-- Poetry teaser -->
+  {featuredPoems.length > 0 && (
+    <section class="section">
+      <div class="container-narrow">
+        <div class="section-head reveal">
+          <span class="eyebrow">From the Verse</span>
+          <h2>Words for the quiet hours</h2>
+        </div>
+        <div class="poem-list">
+          {featuredPoems.map((poem) => (
+            <a href={`/poetry/${poem.slug}`} class="poem-row reveal">
+              <h3>{poem.data.title}</h3>
+              {poem.data.form && <span class="poem-form">{poem.data.form}</span>}
+              {poem.data.description && <p>{poem.data.description}</p>}
+            </a>
+          ))}
+        </div>
+        <div class="text-center mt-8">
+          <a href="/poetry" class="btn">Read All Poems</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Closing CTA -->
   <section class="section section-alt">
-    <div class="container">
-      <div class="section-title">
-        <span class="section-tag">What We Offer</span>
-        <h2>Crafted with Care</h2>
-        <p>Every piece is thoughtfully created to inspire and connect</p>
-      </div>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">📝</div>
-          <h3>Literary Works</h3>
-          <p>Thoughtful essays, short stories, and poetry that explore the depth of human experience.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon feature-icon-blue">📸</div>
-          <h3>Photography</h3>
-          <p>Visual narratives that capture fleeting moments and timeless emotions.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon feature-icon-green">🖼️</div>
-          <h3>Print Store</h3>
-          <p>Bring our art into your space with high-quality prints and limited editions.</p>
-        </div>
-      </div>
+    <div class="container-narrow text-center reveal">
+      <span class="eyebrow">Stay Close</span>
+      <h2>New plates, now and then</h2>
+      <hr class="divider" />
+      <p>An occasional letter when a new photograph or poem finds its way out. No noise.</p>
+      <div class="mt-8"><a href="/subscribe" class="btn btn-primary">Subscribe</a></div>
     </div>
   </section>
-
-  <!-- Testimonial Section -->
-  <section class="section">
-    <div class="container" style="max-width: 900px;">
-      <div class="testimonial-card">
-        <p class="testimonial-text">"This site is a beautiful fusion of words and imagery. Every visit feels like stepping into a gallery where stories come alive."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar" style="background: linear-gradient(135deg, #e17055, #fdcb6e); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">A</div>
-          <div class="testimonial-info">
-            <div class="testimonial-name">A Creative Reader</div>
-            <div class="testimonial-role">Long-time Subscriber</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container">
-      <h2>Ready to Dive In?</h2>
-      <p>Join our community of creative souls and never miss a new story or photograph.</p>
-      <a href="/subscribe" class="btn btn-primary" style="background: white; color: #2d3436; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">Subscribe Today</a>
-    </div>
-  </section>
-
 </BaseLayout>
 
 <style>
-  /* Page-specific styles for better hero padding */
   .hero {
-    padding-top: 10rem;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to right, rgba(10,10,12,0.85) 0%, rgba(10,10,12,0.45) 45%, rgba(10,10,12,0.25) 100%),
+      linear-gradient(to top, rgba(10,10,12,0.7) 0%, transparent 40%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: var(--maxw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+  .hero h1 {
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+  .hero-verse {
+    font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+    color: rgba(236, 232, 225, 0.9);
+    max-width: 30ch;
+    margin-bottom: 2.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+
+  /* Plates */
+  .plates { display: flex; flex-direction: column; gap: clamp(3rem, 6vw, 6rem); }
+  .plate {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+    color: inherit;
+  }
+  .plate-reverse { direction: rtl; }
+  .plate-reverse > * { direction: ltr; }
+  .plate-img { overflow: hidden; aspect-ratio: 4 / 5; background: var(--bg-alt); }
+  .plate-img img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--transition-slow); opacity: 0.94; }
+  .plate:hover .plate-img img { transform: scale(1.04); opacity: 1; }
+  .plate-body { text-align: center; }
+  .plate-body .plate-verse { text-align: left; margin: 0 0 1.5rem; }
+  .plate-reverse .plate-body .plate-verse { text-align: left; }
+  .plate-meta {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* Poetry teaser */
+  .poem-list { border-top: 1px solid var(--line); }
+  .poem-row {
+    display: block;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--line);
+    color: inherit;
+    transition: padding-left var(--transition);
+  }
+  .poem-row:hover { padding-left: 0.75rem; }
+  .poem-row h3 { display: inline; color: var(--text); transition: color var(--transition-fast); }
+  .poem-row:hover h3 { color: var(--gold); }
+  .poem-form {
+    font-family: var(--font-sans);
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-left: 0.75rem;
+  }
+  .poem-row p { margin: 0.6rem 0 0; color: var(--text-dim); font-size: 0.95rem; }
+
+  @media (max-width: 768px) {
+    .plate, .plate-reverse { grid-template-columns: 1fr; direction: ltr; }
+    .plate-body .plate-verse { text-align: center; }
   }
 </style>

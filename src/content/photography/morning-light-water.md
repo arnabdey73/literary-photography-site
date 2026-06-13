@@ -7,8 +7,14 @@ altText: "Soft morning light creating gentle ripples and reflections on a calm l
 camera: "Fujifilm X-T4, 23mm f/2"
 location: "Lake Tahoe, California"
 tags: ["landscape", "morning", "water", "light", "peaceful"]
-featured: false
+featured: true
 available_for_print: true
+verse: |
+  Morning folds itself
+  into the water's edge—
+  a slow gold seam
+  where night gives way.
+poemRef: "still-water"
 ---
 
 There's something magical about being on the water as the sun rises—that moment when the night's stillness gives way to the gentle stirring of a new day. This image captures that transition, where light begins to play across the water's surface in patterns that seem both random and purposeful.

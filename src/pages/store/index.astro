@@ -1,136 +1,70 @@
 ---
+export const prerender = true;
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-// Get photos available for print
-const photos = await getCollection('photography');
-const printablePhotos = photos.filter(photo => photo.data.available_for_print);
-const featuredPrints = printablePhotos.filter(photo => photo.data.featured).slice(0, 6);
+const printable = (await getCollection('photography'))
+  .filter((p) => p.data.available_for_print)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 ---
 
-<BaseLayout title="Print Store - Literary Photography" description="Transform our photography into beautiful prints for your home. High-quality prints, mugs, and more featuring our curated collection.">
-  <!-- Hero Section -->
-  <section class="hero" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="container">
-      <h1>Print Store</h1>
-      <p>Transform our photography into beautiful pieces for your space</p>
-      {printablePhotos.length > 0 && (
-        <a href="#available-prints" class="btn btn-primary" style="background: white; color: #667eea;">Browse Available Prints</a>
-      )}
+<BaseLayout title="Prints — Arnab Dey" description="Fine-art prints of selected photographs, made to order on archival paper.">
+  <section class="page-head">
+    <div class="container-narrow text-center">
+      <span class="eyebrow">The Print Store</span>
+      <h1>Take it home</h1>
+      <hr class="divider" />
+      <p>Selected photographs, printed to order on archival paper. Checkout is being built — for now, browse what will be available and subscribe to hear when it opens.</p>
+      <div class="mt-8"><a href="/subscribe" class="btn btn-primary">Notify Me at Launch</a></div>
     </div>
   </section>
 
-  <!-- Coming Soon Notice -->
-  <section class="section">
-    <div class="container">
-      <div class="content-wrapper text-center">
-        <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem; padding: 2rem; margin-bottom: 3rem;">
-          <h2 style="color: #92400e; margin-bottom: 1rem;">🏗️ Store Coming Soon</h2>
-          <p style="color: #92400e; margin-bottom: 1rem;">We're currently setting up our print store to bring you high-quality reproductions of our photography. The store will feature:</p>
-          <ul style="color: #92400e; text-align: left; max-width: 400px; margin: 0 auto;">
-            <li>Premium photo prints in various sizes</li>
-            <li>Canvas prints and framed options</li>
-            <li>Mugs, postcards, and other merchandise</li>
-            <li>Secure checkout and worldwide shipping</li>
-          </ul>
-          <div style="margin-top: 2rem;">
-            <a href="/subscribe" class="btn btn-primary">Get Notified When We Launch</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {featuredPrints.length > 0 && (
-    <section id="available-prints" class="section">
+  {printable.length > 0 && (
+    <section class="section" style="padding-top: 0;">
       <div class="container">
-        <div class="section-title">
-          <h2>Featured Prints Preview</h2>
-          <p>Get a preview of some photographs that will be available as prints</p>
+        <div class="section-head reveal">
+          <span class="eyebrow">Coming to the store</span>
+          <h2>Prints in preparation</h2>
         </div>
-
         <div class="photo-grid">
-          {featuredPrints.map((photo) => (
-            <div class="photo-item">
-              <a href={`/photography/${photo.slug}`}>
-                <img 
-                  src={photo.data.image} 
-                  alt={photo.data.altText}
-                  loading="lazy"
-                />
-                <div class="photo-overlay">
-                  <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.125rem;">{photo.data.title}</h3>
-                  <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 0.5rem; font-size: 0.875rem;">
-                    {photo.data.location && `${photo.data.location}`}
-                  </p>
-                  <div style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
-                    <span style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
-                      Print Available
-                    </span>
-                    <span style="background: rgba(255, 255, 255, 0.2); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
-                      Coming Soon
-                    </span>
-                  </div>
-                </div>
-              </a>
-            </div>
+          {printable.map((photo) => (
+            <a href={`/photography/${photo.slug}`} class="photo-item">
+              <img src={photo.data.image} alt={photo.data.altText} loading="lazy" />
+              <div class="photo-overlay">
+                <h3>{photo.data.title}</h3>
+                <p>{photo.data.location ?? 'Fine-art print'}</p>
+              </div>
+            </a>
           ))}
-        </div>
-
-        <div class="text-center" style="margin-top: 3rem;">
-          <a href="/photography" class="btn btn-secondary">View Full Gallery</a>
         </div>
       </div>
     </section>
   )}
 
-  <!-- Store Features Section -->
-  <section class="section" style="background-color: #f9fafb;">
+  <section class="section section-alt">
     <div class="container">
-      <div class="section-title">
-        <h2>What to Expect</h2>
-        <p>Quality and craftsmanship in every product</p>
-      </div>
-
+      <div class="section-head"><span class="eyebrow">What to expect</span><h2>Made with care</h2></div>
       <div class="grid grid-3">
-        <div class="text-center" style="padding: 2rem;">
-          <div style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
-            🖼️
-          </div>
-          <h3>Premium Prints</h3>
-          <p style="color: #6b7280;">Museum-quality prints on archival paper with rich colors and sharp detail.</p>
+        <div class="expect reveal">
+          <h3>Archival quality</h3>
+          <p>Giclée prints on museum-grade paper, colour-managed for depth and longevity.</p>
         </div>
-
-        <div class="text-center" style="padding: 2rem;">
-          <div style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
-            📦
-          </div>
-          <h3>Secure Packaging</h3>
-          <p style="color: #6b7280;">Carefully packaged to ensure your prints arrive in perfect condition.</p>
+        <div class="expect reveal">
+          <h3>Made to order</h3>
+          <p>Printed individually in a range of sizes, so each piece is produced just for you.</p>
         </div>
-
-        <div class="text-center" style="padding: 2rem;">
-          <div style="width: 4rem; height: 4rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 1.5rem;">
-            🌍
-          </div>
-          <h3>Worldwide Shipping</h3>
-          <p style="color: #6b7280;">Available for shipping globally with tracking and insurance options.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Newsletter Signup -->
-  <section class="section">
-    <div class="container">
-      <div class="content-wrapper text-center">
-        <h2>Be the First to Know</h2>
-        <p>Get notified when our print store launches and be among the first to order limited edition prints.</p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
-          <a href="/subscribe" class="btn btn-primary">Subscribe for Updates</a>
-          <a href="/photography" class="btn btn-secondary">Browse Photography</a>
+        <div class="expect reveal">
+          <h3>Shipped with care</h3>
+          <p>Packed flat or rolled to protect the surface, with worldwide delivery.</p>
         </div>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .page-head { padding: clamp(8rem, 16vh, 12rem) 0 clamp(3rem, 6vw, 5rem); }
+  .expect { padding: 2rem; border: 1px solid var(--line); }
+  .expect h3 { margin-bottom: 0.75rem; }
+</style>

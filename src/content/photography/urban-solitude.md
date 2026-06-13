@@ -9,6 +9,12 @@ location: "Central Park, New York"
 tags: ["urban", "solitude", "street photography", "autumn"]
 featured: true
 available_for_print: true
+verse: |
+  In the city's loud machine,
+  one bench, one breath, one figure—
+  the leaves come down like quiet
+  learning how to fall.
+poemRef: "city-of-one"
 ---
 
 In the heart of the city's constant motion, there exist pockets of stillness—moments where the urban landscape reveals its capacity for quiet contemplation. This photograph captures one such moment: a solitary figure finding respite on a park bench, surrounded by the golden cascade of autumn leaves.

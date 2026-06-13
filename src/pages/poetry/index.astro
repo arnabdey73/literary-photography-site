@@ -1,0 +1,95 @@
+---
+export const prerender = true;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const poems = (await getCollection('poetry'))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+// Group by series, keeping un-seried poems under a default heading
+const seriesOrder: string[] = [];
+const grouped: Record<string, typeof poems> = {};
+for (const poem of poems) {
+  const key = poem.data.series ?? 'Single Poems';
+  if (!grouped[key]) { grouped[key] = []; seriesOrder.push(key); }
+  grouped[key].push(poem);
+}
+---
+
+<BaseLayout
+  title="Poetry — Arnab Dey"
+  description="Poems and verse by Arnab Dey — words for the quiet hours, often paired with photographs."
+>
+  <section class="page-head">
+    <div class="container-narrow text-center">
+      <span class="eyebrow">The Verse</span>
+      <h1>Poetry</h1>
+      <hr class="divider" />
+      <p>Lines written in the margins of light. Some stand alone; some keep company with a photograph.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="container-narrow">
+      {poems.length > 0 ? (
+        seriesOrder.map((series) => (
+          <div class="series">
+            <h2 class="series-title">{series}</h2>
+            <ul class="poem-list">
+              {grouped[series].map((poem) => (
+                <li>
+                  <a href={`/poetry/${poem.slug}`} class="poem-row reveal">
+                    <div class="poem-row-head">
+                      <h3>{poem.data.title}</h3>
+                      {poem.data.form && <span class="poem-form">{poem.data.form}</span>}
+                    </div>
+                    {poem.data.description && <p>{poem.data.description}</p>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      ) : (
+        <p class="text-center">New poems are being set in type. Please return soon.</p>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head { padding: clamp(8rem, 16vh, 12rem) 0 clamp(3rem, 6vw, 5rem); }
+  .series { margin-bottom: clamp(3rem, 6vw, 5rem); }
+  .series-title {
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0.5rem;
+  }
+  .poem-list { list-style: none; }
+  .poem-row {
+    display: block;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--line);
+    color: inherit;
+    transition: padding-left var(--transition);
+  }
+  .poem-row:hover { padding-left: 0.75rem; }
+  .poem-row-head { display: flex; align-items: baseline; gap: 0.85rem; flex-wrap: wrap; }
+  .poem-row h3 { color: var(--text); transition: color var(--transition-fast); }
+  .poem-row:hover h3 { color: var(--gold); }
+  .poem-form {
+    font-family: var(--font-sans);
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .poem-row p { margin: 0.6rem 0 0; color: var(--text-dim); font-size: 0.98rem; }
+</style>

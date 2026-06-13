@@ -20,11 +20,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="generator" content={Astro.generator} />
-  
-  <!-- Google Fonts - Modern Typography -->
+  <meta name="theme-color" content="#0e0e10" />
+
+  <!-- Typography: Cormorant Garamond (display/verse) + Inter (UI/body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Primary Meta Tags -->
   <title>{title}</title>
@@ -55,5 +56,21 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </main>
   
   <Footer />
+
+  <script>
+    // Reveal elements as they scroll into view
+    const reveals = document.querySelectorAll('.reveal');
+    if (reveals.length) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      reveals.forEach((el) => io.observe(el));
+    }
+  </script>
 </body>
 </html>

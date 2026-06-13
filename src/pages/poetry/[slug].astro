@@ -1,0 +1,123 @@
+---
+export const prerender = true;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const poems = await getCollection('poetry');
+  return poems.map((poem) => ({
+    params: { slug: poem.slug },
+    props: { poem },
+  }));
+}
+
+const { poem } = Astro.props;
+const { Content } = await poem.render();
+
+const pairedPhoto = poem.data.photoRef ? await getEntry(poem.data.photoRef) : null;
+
+const dateStr = poem.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<BaseLayout
+  title={`${poem.data.title} — Poetry`}
+  description={poem.data.description ?? `A poem by Arnab Dey`}
+  image={pairedPhoto?.data.image}
+>
+  <article class="poem">
+    {pairedPhoto && (
+      <figure class="poem-stage">
+        <img src={pairedPhoto.data.image} alt={pairedPhoto.data.altText} fetchpriority="high" />
+        <div class="poem-stage-scrim"></div>
+      </figure>
+    )}
+
+    <div class="container-narrow">
+      <header class="poem-head text-center">
+        {poem.data.series && <span class="eyebrow">{poem.data.series}</span>}
+        <h1>{poem.data.title}</h1>
+        <hr class="divider" />
+        <p class="poem-byline">
+          {poem.data.form && <span>{poem.data.form}</span>}
+          <span>{dateStr}</span>
+        </p>
+      </header>
+
+      <div class="poem-body verse-body">
+        <Content />
+      </div>
+
+      {pairedPhoto && (
+        <a href={`/photography/${pairedPhoto.slug}`} class="paired-link reveal">
+          <span class="eyebrow">Paired with</span>
+          <h3>{pairedPhoto.data.title} &rarr;</h3>
+        </a>
+      )}
+
+      <div class="poem-nav">
+        <a href="/poetry" class="btn btn-ghost">&larr; All Poems</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .poem-stage {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    min-height: 320px;
+    overflow: hidden;
+    background: var(--bg-alt);
+  }
+  .poem-stage img { width: 100%; height: 100%; object-fit: cover; }
+  .poem-stage-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(14,14,16,0.2) 0%, rgba(14,14,16,0.6) 70%, var(--bg) 100%);
+  }
+
+  .poem-head { padding: clamp(4rem, 9vh, 7rem) 0 1rem; }
+  .poem-byline {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  /* The poem itself — generous, centered, serif. Markdown line breaks preserved. */
+  .verse-body {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    line-height: 1.7;
+    color: var(--text);
+    text-align: center;
+    padding: clamp(2rem, 5vw, 4rem) 0;
+    max-width: 34ch;
+    margin: 0 auto;
+  }
+  .verse-body :global(p) { color: var(--text); margin-bottom: 1.6rem; white-space: pre-line; }
+  .verse-body :global(em) { color: var(--gold-soft); }
+  .verse-body :global(hr) {
+    width: 40px; height: 1px; background: var(--gold); border: 0; margin: 2.5rem auto;
+  }
+
+  .paired-link {
+    display: block;
+    text-align: center;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    border: 1px solid var(--line);
+    color: inherit;
+    transition: border-color var(--transition);
+  }
+  .paired-link:hover { border-color: var(--gold-dim); }
+  .paired-link h3 { color: var(--gold); }
+
+  .poem-nav { padding: 3rem 0 clamp(4rem, 8vw, 7rem); text-align: center; }
+</style>
