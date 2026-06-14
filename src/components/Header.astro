@@ -1,30 +1,68 @@
 ---
 const currentPath = Astro.url.pathname;
 
-const links = [
-  { href: '/photography', label: 'Photography', match: (p: string) => p.startsWith('/photography') },
-  { href: '/poetry', label: 'Poetry', match: (p: string) => p.startsWith('/poetry') },
-  { href: '/blog', label: 'Journal', match: (p: string) => p.startsWith('/blog') },
-  { href: '/store', label: 'Prints', match: (p: string) => p.startsWith('/store') },
-  { href: '/about', label: 'About', match: (p: string) => p === '/about' },
+type Link = {
+  href: string;
+  label: string;
+  match: (p: string) => boolean;
+  children?: { href: string; label: string }[];
+};
+
+const links: Link[] = [
+  { href: '/photography', label: 'Photography', match: (p) => p.startsWith('/photography') },
+  { href: '/poetry', label: 'Poetry', match: (p) => p.startsWith('/poetry') },
+  {
+    href: '/blog',
+    label: 'Journal',
+    match: (p) => p.startsWith('/blog'),
+    children: [
+      { href: '/blog', label: 'Essays' },
+      { href: '/blog/literary', label: 'Literary' },
+    ],
+  },
+  { href: '/store', label: 'Prints', match: (p) => p.startsWith('/store') },
+  { href: '/about', label: 'About', match: (p) => p === '/about' },
 ];
 ---
 
 <header class="header" id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <span class="logo-mark">Arnab Dey</span>
-      <span class="logo-sub">Photographs &amp; Verse</span>
+      <span class="logo-avatar">
+        <img
+          src="/images/portrait.jpg"
+          alt="Arnab Dey"
+          width="256"
+          height="256"
+          onerror="this.onerror=null;this.src='/images/portrait.svg';"
+        />
+      </span>
+      <span class="logo-text">
+        <span class="logo-mark">Arnab Dey</span>
+        <span class="logo-sub">Photographs &amp; Verse</span>
+      </span>
     </a>
 
     <nav class="nav" aria-label="Primary">
       <ul class="nav-list">
         {links.map((link) => (
-          <li>
+          <li class={link.children ? 'nav-item has-sub' : 'nav-item'}>
             <a href={link.href} class={link.match(currentPath) ? 'nav-link active' : 'nav-link'}>{link.label}</a>
+            {link.children && (
+              <ul class="subnav">
+                {link.children.map((child) => (
+                  <li>
+                    <a
+                      href={child.href}
+                      class={currentPath === child.href ? 'subnav-link active' : 'subnav-link'}
+                    >{child.label}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
-        <li><a href="/subscribe" class="nav-link nav-cta">Subscribe</a></li>
+        <li class="nav-item"><a href="/subscribe" class="nav-link nav-cta">Subscribe</a></li>
       </ul>
     </nav>
 
@@ -37,7 +75,16 @@ const links = [
 <div class="mobile-menu" id="mobileMenu">
   <ul class="mobile-list">
     {links.map((link) => (
-      <li><a href={link.href} class={link.match(currentPath) ? 'active' : ''}>{link.label}</a></li>
+      <li>
+        <a href={link.href} class={link.match(currentPath) ? 'active' : ''}>{link.label}</a>
+        {link.children && (
+          <ul class="mobile-sublist">
+            {link.children.map((child) => (
+              <li><a href={child.href} class={currentPath === child.href ? 'active' : ''}>{child.label}</a></li>
+            ))}
+          </ul>
+        )}
+      </li>
     ))}
     <li><a href="/subscribe" class="mobile-cta">Subscribe</a></li>
   </ul>
@@ -65,13 +112,20 @@ const links = [
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 1000;
-    transition: background 0.4s ease, border-color 0.4s ease, padding 0.4s ease;
+    transition: background 0.4s ease, border-color 0.4s ease;
     border-bottom: 1px solid transparent;
   }
   .header.scrolled {
     background: rgba(14, 14, 16, 0.82);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
+    border-bottom-color: var(--line);
+  }
+  /* Solid backdrop while expanded so the revealed area is legible */
+  .header:hover {
+    background: rgba(14, 14, 16, 0.92);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
     border-bottom-color: var(--line);
   }
 
@@ -82,17 +136,34 @@ const links = [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: padding 0.4s ease;
+    transition: padding 0.4s var(--transition);
   }
   .header.scrolled .header-inner { padding-top: 1.1rem; padding-bottom: 1.1rem; }
+  /* Expand the header vertically on hover */
+  .header:hover .header-inner { padding-top: 2.4rem; padding-bottom: 2.4rem; }
 
-  .logo { display: flex; flex-direction: column; line-height: 1.1; }
+  /* ---- Logo: avatar + name (grows on hover) ---- */
+  .logo { display: flex; align-items: center; gap: 0.85rem; }
+
+  .logo-avatar {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    transition: width var(--transition), height var(--transition), border-color var(--transition);
+  }
+  .logo-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .header:hover .logo-avatar { width: 68px; height: 68px; border-color: var(--gold-dim); }
+
+  .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
   .logo-mark {
     font-family: var(--font-serif);
     font-size: 1.5rem;
     font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--text);
+    transition: font-size var(--transition), color var(--transition-fast);
   }
   .logo-sub {
     font-family: var(--font-sans);
@@ -101,10 +172,16 @@ const links = [
     text-transform: uppercase;
     color: var(--text-faint);
     margin-top: 0.2rem;
+    transition: font-size var(--transition);
   }
   .logo:hover .logo-mark { color: var(--gold); }
+  /* Name (and sub) grow together with the image */
+  .header:hover .logo-mark { font-size: 2.1rem; }
+  .header:hover .logo-sub { font-size: 0.68rem; }
 
+  /* ---- Right-hand menu: stays intact (no resize) ---- */
   .nav-list { display: flex; list-style: none; gap: 0.35rem; align-items: center; }
+  .nav-item { position: relative; }
   .nav-link {
     display: block;
     padding: 0.5rem 1rem;
@@ -124,6 +201,36 @@ const links = [
     margin-left: 0.75rem;
   }
   .nav-cta:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ---- Submenus: revealed in the expanded space below their parent ---- */
+  .subnav {
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: 0.5rem;
+    min-width: max-content;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding-top: 0.4rem;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity var(--transition), transform var(--transition);
+  }
+  .header:hover .subnav { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .subnav-link {
+    display: block;
+    padding: 0.4rem 0.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    transition: color var(--transition-fast);
+  }
+  .subnav-link:hover { color: var(--text); }
+  .subnav-link.active { color: var(--gold); }
 
   /* Mobile */
   .menu-btn {
@@ -149,10 +256,11 @@ const links = [
     padding-top: 22vh;
     opacity: 0; visibility: hidden;
     transition: all var(--transition);
+    overflow-y: auto;
   }
   .mobile-menu.active { opacity: 1; visibility: visible; }
   .mobile-list { list-style: none; padding: 0 var(--gutter); text-align: center; }
-  .mobile-list li { margin-bottom: 0.5rem; }
+  .mobile-list > li { margin-bottom: 0.5rem; }
   .mobile-list a {
     display: block;
     padding: 0.9rem;
@@ -161,10 +269,24 @@ const links = [
     color: var(--text-dim);
   }
   .mobile-list a.active, .mobile-list a:hover { color: var(--gold); }
+  .mobile-sublist { list-style: none; margin-top: -0.4rem; margin-bottom: 0.4rem; }
+  .mobile-sublist a {
+    font-size: 1.1rem;
+    font-family: var(--font-sans);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 0.4rem;
+  }
   .mobile-cta { color: var(--text) !important; margin-top: 1rem; font-size: 1.5rem !important; letter-spacing: 0.1em; }
 
   @media (max-width: 900px) {
     .nav { display: none; }
     .menu-btn { display: flex; }
+    /* No hover expansion on touch / small screens */
+    .header:hover .header-inner { padding-top: 1.6rem; padding-bottom: 1.6rem; }
+    .header:hover .logo-avatar { width: 44px; height: 44px; }
+    .header:hover .logo-mark { font-size: 1.5rem; }
+    .header:hover .logo-sub { font-size: 0.62rem; }
   }
 </style>
